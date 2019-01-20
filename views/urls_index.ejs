@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> TinyApp</title>
+</head>
+<body>
+  <% include ./partials/_header %>
+
+  <ul>
+  <% for(const eachURL in urls) { %>
+
+    <li><%= eachURL %>: <a href="<%= urls[eachURL]  %>"> <%= urls[eachURL] %> </a></li>
+    <form method='POST' action='/urls/<%= eachURL %>/delete'>
+      <a href="http://localhost:8080/urls/<%= eachURL %>"> Edit </a>
+      <button>delete</button>
+    </form>
+    <% } %>
+  </ul>
+
+
+</body>
+</html>
