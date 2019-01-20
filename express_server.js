@@ -2,6 +2,9 @@ var express = require("express");
 var app = express();
 var PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+var cookieParser = require('cookie-parser')
+
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
@@ -37,7 +40,10 @@ app.get("/hello", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = {
+    urls: urlDatabase,
+    user_id: req.cookies.user_id,
+  };
   res.render("urls_index", templateVars)
 })
 
@@ -54,7 +60,10 @@ app.get("/urls/new", (req, res) => {
 })
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id };
+  let templateVars = {
+    shortURL: req.params.id,
+    user_id: req.cookies.user_id,
+  };
   res.render("urls_show", templateVars);
 })
 
@@ -69,7 +78,6 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[id] = req.body.newLongURL;
   console.log('dude', urlDatabase);
   res.redirect('/urls');
-  // console
 })
 
 app.get("/u/:shortURL", (req, res) => {
@@ -78,6 +86,17 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(`urls${url}`);
 });
 
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('user_id', `${username}`)
+  console.log('work?', req.cookies.user_id)
+  res.redirect('/urls')
+})
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('user_id')
+  res.redirect('/urls')
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

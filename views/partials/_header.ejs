@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title></title>
-</head>
-<body>
-<h1> sup asshole </h1>
-</body>
+  <head>
+    <title></title>
+  </head>
+  <body>
+  <%if (user_id) { %>
+    <h1> sup asshole <%= user_id %> </h1>
+    <form method='POST' action="/logout">
+    <button>Logout</button>
+    <% } else { %>
+     <form method='POST' action="/login">
+      <input type="text" name="username">
+      <button>Sign in</button>
+    </form>
+    <% } %>
+  </form>
+  </body>
 </html>
