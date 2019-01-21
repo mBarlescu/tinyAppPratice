@@ -4,11 +4,15 @@
   <title></title>
 </head>
 <body>
-  <% include ./partials/_header %>
+  <% include partials/_header %>
+  <li><%= shortURL %>: <a href="<%= urls[shortURL].longURL  %>"><%= urls[shortURL].longURL %></a>
+
+  <% if((user_id) && user_id === urls[shortURL].id){ %>
   <form method="POST" action='/urls/<%= shortURL %>'>
     <input type="text" name="newLongURL">
     <button type="submit">update</button>
   </form>
+  <% } %>
 
 </body>
 </html>

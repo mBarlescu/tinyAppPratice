@@ -43,8 +43,14 @@ function checkPassword(receivedEmail){
 // console.log(generateRandomString(6))
 
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    id: 'id',
+    },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    id: 'id2',
+  },
 };
 
 let users = {
@@ -87,19 +93,31 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body);
   const shortURL = generateRandomString(6)
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    id: req.cookies.user_id,
+  }
   console.log(urlDatabase);
   res.redirect(`http://localhost:8080/u/${shortURL}`);
 })
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new")
+   let templateVars = {
+    urls: urlDatabase,
+    user_id: req.cookies.user_id,
+    'users': users,
+  };
+  if(!req.cookies.user_id){
+    res.redirect('/urls')
+  } else
+  res.render("urls_new", templateVars)
 })
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL: req.params.id,
     user_id: req.cookies.user_id,
+    urls: urlDatabase,
     'users': users,
   };
   res.render("urls_show", templateVars);
@@ -113,7 +131,10 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  urlDatabase[id] = req.body.newLongURL;
+  urlDatabase[id] = {
+    longURL: req.body.newLongURL,
+    id: req.cookies.user_id,
+    }
   console.log('dude', urlDatabase);
   res.redirect('/urls');
 })
@@ -121,7 +142,7 @@ app.post("/urls/:id", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   let longURL = req.params.shortURL
   const url = urlDatabase[longURL]
-  res.redirect(`urls${url}`);
+  res.redirect(`/urls/${longURL}`);
 });
 
 app.get("/register", (req, res) => {
@@ -191,4 +212,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
