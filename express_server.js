@@ -3,6 +3,7 @@ var app = express();
 var PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 var cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt');
 
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: true}));
@@ -158,6 +159,7 @@ app.post("/register", (req, res) => {
   const userID = generateRandomString(6)
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+  const hashedPassword = bcrypt.hashSync(userPassword, 10);
   if(!userEmail || !userPassword){
     res.send('error 400: must provide an email and password')
   } else if (doesUserExist(userEmail)){
@@ -166,7 +168,7 @@ app.post("/register", (req, res) => {
   users[userID] = {
     id: userID,
     email: userEmail,
-    password: userPassword,
+    password: hashedPassword,
   }
   res.cookie('user_id', userID);
   console.log(users);
@@ -189,15 +191,15 @@ app.post("/login", (req, res) => {
   console.log('checking password in database', checkPassword(email))
   if(!doesUserExist(email)){
     res.send('error: email not registered')
-  } else if (checkPassword(email) !== password) {
-    res.send('error: password does not match with email')
-  } else if (checkPassword(email) === password){
+  } else if (bcrypt.compareSync(password, checkPassword(email))){
     for(const user in users){
       if(users[user].email === email){
         res.cookie('user_id', `${users[user].id}`);
         console.log('password retreived')
       }
     }
+  } else {
+    res.send('password does not match email')
   }
 
   console.log('work?', req.cookies.user_id)
