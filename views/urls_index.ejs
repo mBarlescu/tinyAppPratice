@@ -7,6 +7,7 @@
   <% include ./partials/_header %>
 
   <ul>
+    <% if(user_id) { %>
   <% for(const eachURL in urls) { %>
     <% if(urls[eachURL].id === user_id) { %>
     <li><%= eachURL %>: <a href="<%= urls[eachURL].longURL  %>"> <%= urls[eachURL].longURL %> </a></li>
@@ -16,6 +17,7 @@
       <a href="http://localhost:8080/urls/<%= eachURL %>"> Edit </a>
       <button>delete</button>
     </form>
+    <% } %>
     <% } %>
     <% } %>
   </ul>
