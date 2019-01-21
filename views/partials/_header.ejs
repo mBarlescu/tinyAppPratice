@@ -5,14 +5,13 @@
   </head>
   <body>
   <%if (user_id) { %>
-    <h1> sup asshole <%= user_id %> </h1>
+    <h1> sup asshole <%= users[user_id].email %> </h1>
     <form method='POST' action="/logout">
-    <button>Logout</button>
-    <% } else { %>
-     <form method='POST' action="/login">
-      <input type="text" name="username">
-      <button>Sign in</button>
+      <button>Logout</button>
     </form>
+    <% } else { %>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
     <% } %>
   </form>
   </body>

@@ -19,12 +19,47 @@ function generateRandomString(len) {
 
   return text;
 }
+
+function doesUserExist(receivedEmail){
+  console.log('am i being fired??')
+  for(const user in users){
+    console.log('user here', users[user].email)
+    if (users[user].email === receivedEmail){
+      return true
+    }
+  }
+}
+
+function checkPassword(receivedEmail){
+  for(const user in users){
+    if(users[user].email === receivedEmail){
+      console.log('yoo mah dude', users[user].password)
+      return users[user].password
+    }
+  }
+}
+
+
 // console.log(generateRandomString(6))
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+let users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: 'user@example.com',
+    password: "purple-monkey-dinosaur",
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  },
+}
+
 console.log(urlDatabase)
 
 app.get("/", (req, res) => {
@@ -43,7 +78,9 @@ app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
     user_id: req.cookies.user_id,
+    'users': users,
   };
+  console.log(req.cookies.user_id)
   res.render("urls_index", templateVars)
 })
 
@@ -63,6 +100,7 @@ app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL: req.params.id,
     user_id: req.cookies.user_id,
+    'users': users,
   };
   res.render("urls_show", templateVars);
 })
@@ -86,9 +124,61 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(`urls${url}`);
 });
 
+app.get("/register", (req, res) => {
+  let templateVars = {
+    urls: urlDatabase,
+    user_id: req.cookies.user_id,
+    'users': users,
+  };
+  res.render('register', templateVars)
+})
+
+app.post("/register", (req, res) => {
+  const userID = generateRandomString(6)
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  if(!userEmail || !userPassword){
+    res.send('error 400: must provide an email and password')
+  } else if (doesUserExist(userEmail)){
+    res.send('error 400: this email are exists')
+  } else {
+  users[userID] = {
+    id: userID,
+    email: userEmail,
+    password: userPassword,
+  }
+  res.cookie('user_id', userID);
+  console.log(users);
+  res.redirect('/urls')
+  }
+})
+
+app.get("/login", (req, res) => {
+  let templateVars = {
+    urls: urlDatabase,
+    user_id: req.cookies.user_id,
+    'users': users,
+  };
+  res.render('login', templateVars)
+})
+
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie('user_id', `${username}`)
+  const email = req.body.email;
+  const password = req.body.password;
+  console.log('checking password in database', checkPassword(email))
+  if(!doesUserExist(email)){
+    res.send('error: email not registered')
+  } else if (checkPassword(email) !== password) {
+    res.send('error: password does not match with email')
+  } else if (checkPassword(email) === password){
+    for(const user in users){
+      if(users[user].email === email){
+        res.cookie('user_id', `${users[user].id}`);
+        console.log('password retreived')
+      }
+    }
+  }
+
   console.log('work?', req.cookies.user_id)
   res.redirect('/urls')
 })
